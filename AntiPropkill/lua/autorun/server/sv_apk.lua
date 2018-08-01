@@ -18,67 +18,75 @@ end)
 
 --< Disable collision on players and vehicles on prop pickup >--
 hook.Add("PhysgunPickup", "AntiPropKill", function(ply, ent)
-    --< Check if the thing that's been pickup is a player or an NPC >--
-    if ent:IsPlayer() or ent:IsNPC() then return end
+    if table.HasValue(APKconfig.disablePickup or {}, ply:Nick()) then return false end
 
-    --< Removes the timer if it exists on the entity that has been picked up and all the constarined objects >--
-    if timer.Exists("AntiPropKill"..ent:EntIndex()) then timer.Remove("AntiPropKill"..ent:EntIndex()) end
-    for i, v in pairs(constraint.GetAllConstrainedEntities(ent)) do
-        if IsValid(v) then
-            if timer.Exists("AntiPropKill"..v:EntIndex()) then timer.Remove("AntiPropKill"..v:EntIndex()) end
-        end
-    end
+    if not APKconfig.disablePropGhosting or 1 == 2 then
+        if not table.HasValue(APKconfig.pickupWhitelist or {}, ent:GetClass()) then
+            if not table.HasValue(APKconfig.playerPickupWhitelist or {}, ply:Nick()) then
+                --< Check if the thing that's been pickup is a player or an NPC >--
+                if ent:IsPlayer() or ent:IsNPC() then return end
 
-    --< Grab the data from the prop >--
-    if ent.color == nil then
-        ent.color = ent:GetColor()
-    end
+                --< Removes the timer if it exists on the entity that has been picked up and all the constarined objects >--
+                if timer.Exists("AntiPropKill"..ent:EntIndex()) then timer.Remove("AntiPropKill"..ent:EntIndex()) end
+                for i, v in pairs(constraint.GetAllConstrainedEntities(ent)) do
+                    if IsValid(v) then
+                        if timer.Exists("AntiPropKill"..v:EntIndex()) then timer.Remove("AntiPropKill"..v:EntIndex()) end
+                    end
+                end
 
-    if ent.material == nil then
-        ent.material = ent:GetMaterial()
-    end
+                --< Grab the data from the prop >--
+                if ent.color == nil then
+                    ent.color = ent:GetColor()
+                end
 
-    if ent.collision == nil then
-        ent.collision = ent:GetCollisionGroup()
-    end
+                if ent.material == nil then
+                    ent.material = ent:GetMaterial()
+                end
 
-    if ent.rendermode == nil then
-        ent.rendermode = ent:GetRenderMode()
-    end
+                if ent.collision == nil then
+                    ent.collision = ent:GetCollisionGroup()
+                end
 
-    --< Change prop collision group and make it transparent >--
-    ent:SetRenderMode(APKconfig.renderMode or RENDERMODE_TRANSALPHA)
-    ent:SetCollisionGroup(APKconfig.collisionGroup or COLLISION_GROUP_WEAPON)
-    ent:SetColor(APKconfig.color or Color(0, 0, 0, 100))
-    ent:SetMaterial(APKconfig.material or "models/debug/debugwhite")
+                if ent.rendermode == nil then
+                    ent.rendermode = ent:GetRenderMode()
+                end
 
-    --< Grab all the constrained objects to the prop that has been picked up >--
-    for k, v in pairs(constraint.GetAllConstrainedEntities(ent)) do
-        --< Check if there are any constrained object(s) >--
-        if IsValid(v) then
+                --< Change prop collision group and make it transparent >--
+                ent:SetRenderMode(APKconfig.renderMode or RENDERMODE_TRANSALPHA)
+                ent:SetCollisionGroup(APKconfig.collisionGroup or COLLISION_GROUP_WEAPON)
+                ent:SetColor(APKconfig.color or Color(0, 0, 0, 100))
+                ent:SetMaterial(APKconfig.material or "models/debug/debugwhite")
 
-            --< Grab the data of the constarined object(s) >--
-            if v.color == nil then
-                v.color = v:GetColor()
+                --< Grab all the constrained objects to the prop that has been picked up >--
+                for k, v in pairs(constraint.GetAllConstrainedEntities(ent)) do
+                    --< Check if there are any constrained object(s) >--
+                    if IsValid(v) then
+
+                        --< Grab the data of the constarined object(s) >--
+                        if v.color == nil then
+                            v.color = v:GetColor()
+                        end
+
+                        if v.material == nil then
+                            v.material = v:GetMaterial()
+                        end
+
+                        if v.collision == nil then
+                            v.collision = v:GetCollisionGroup()
+                        end
+
+                        if v.rendermode == nil then
+                            v.rendermode = v:GetRenderMode()
+                        end
+
+                        --< Change constrained object(s) collision group and make it transparent >-- 
+                        v:SetRenderMode(APKconfig.renderMode or RENDERMODE_TRANSALPHA)
+                        v:SetCollisionGroup(APKconfig.collisionGroup or COLLISION_GROUP_WEAPON)
+                        v:SetColor(APKconfig.color or Color(0, 0, 0, 100))
+                        v:SetMaterial(APKconfig.material or "models/debug/debugwhite")
+                    end
+                end
             end
-
-            if v.material == nil then
-                v.material = v:GetMaterial()
-            end
-
-            if v.collision == nil then
-                v.collision = v:GetCollisionGroup()
-            end
-
-            if v.rendermode == nil then
-                v.rendermode = v:GetRenderMode()
-            end
-
-            --< Change constrained object(s) collision group and make it transparent >-- 
-            v:SetRenderMode(APKconfig.renderMode or RENDERMODE_TRANSALPHA)
-            v:SetCollisionGroup(APKconfig.collisionGroup or COLLISION_GROUP_WEAPON)
-            v:SetColor(APKconfig.color or Color(0, 0, 0, 100))
-            v:SetMaterial(APKconfig.material or "models/debug/debugwhite")
         end
     end
 end)
@@ -115,10 +123,22 @@ hook.Add("PhysgunDrop", "AntiPropKill", function(ply, ent)
     end
 end)
 
+--< Anti prop damage >--
 hook.Add("EntityTakeDamage", "DisablePropDamage", function(t, d)
     if APKconfig.DisablePropDamage or 1 == 1 then
         if d:GetInflictor():GetClass() == "prop_physics" then 
             d:SetDamage(0) 
+        end
+    end
+end)
+
+--< Anti gravity gun punt >--
+hook.Add("GravGunPunt", "DisableGravityGunPunt", function(ply, ent)
+    if APKconfig.disablePunt or 1 == 2 then
+        if not table.HasValue(APKconfig.playerPuntWhitelist or {}, tostring(ply:Nick())) then
+            if not table.HasValue(APKconfig.puntWhitelist or {}, ent:GetClass()) then
+                return false
+            end   
         end
     end
 end)
