@@ -21,6 +21,6 @@ APKconfig.color = Color(0, 0, 0, 100)                 -- The color of the prop w
 APKconfig.material = "models/debug/debugwhite"        -- The material of the prop when you pick it up / spawn it in, leave it blank if you don't want to set it's material.
 APKconfig.timer = 5                                   -- How long until the prop returns back to normal after dropping.
 APKconfig.timer2 = 5                                  -- How long until the prop reset when you spawned it in.
-APKconfig.collideWithNotFrozen = true                 -- Disables collision to other props that are not frozen when you're using the physgun (makes it harder to build IMO, but it does prevent a method of prop boosting).
+APKconfig.collideWithNotFrozen = false                -- Disables collision to other props that are not frozen when you're using the physgun (makes it harder to build IMO, but it does prevent a method of prop boosting).
 APKconfig.renderMode = RENDERMODE_TRANSALPHA          -- The rendermode on physgun pickup / spawning prop.
 APKconfig.collisionGroup = COLLISION_GROUP_WEAPON     -- The collision group on physgun pickup / spawning prop.
