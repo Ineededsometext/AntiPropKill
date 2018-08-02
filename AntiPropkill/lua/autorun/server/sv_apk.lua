@@ -18,7 +18,7 @@ hook.Add("PlayerSpawnedProp", "SetPropOwner", function(ply, mdl, ent)
 end)
 
 hook.Add("ShouldCollide", "RemovePropCollision", function(ent1, ent2)
-    if APKconfig.collideWithNotFrozen or 1 == 1 then
+    if APKconfig.collideWithNotFrozen or 1 == 2 then
         if IsValid(ent1) and IsValid(ent2) then
             if ent1.antiPropKillOwner != nil and ent2.antiPropKillOwner != nil then
                 if ent1.pickedUp == true or ent2.pickedUp == true then
