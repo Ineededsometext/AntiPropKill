@@ -48,7 +48,7 @@ hook.Add("PhysgunPickup", "AntiPropKill", function(ply, ent)
     if table.HasValue(APKconfig.disablePickup or {}, ply:Nick()) then return false end
     ent.pickedUp = true
 
-    if not APKconfig.disablePropGhosting or 1 == 2 then
+    if not APKconfig.disablePropGhosting or 1 == 1 then
         if not table.HasValue(APKconfig.pickupWhitelist or {}, ent:GetClass()) then
             if not table.HasValue(APKconfig.playerPickupWhitelist or {}, ply:Nick()) then
                 --< Check if the thing that's been pickup is a player or an NPC >--
