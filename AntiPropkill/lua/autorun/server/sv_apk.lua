@@ -10,15 +10,43 @@ end)
 --< Sets the spawned prop's owner >-- 
 hook.Add("PlayerSpawnedProp", "SetPropOwner", function(ply, mdl, ent)
     --< Check if the entity doesn't have an owner >--
-    if not IsValid(ent.antiPropKillOwner) then
+    if ent.antiPropKillOwner == nil then
         --< Sets the entity's owner >--
-        ent.antiPropKillOwner = ply:Nick()
+        ent.antiPropKillOwner = ply
+        ent:SetCustomCollisionCheck(true)
+    end
+end)
+
+hook.Add("ShouldCollide", "RemovePropCollision", function(ent1, ent2)
+    if APKconfig.collideWithNotFrozen or 1 == 1 then
+        if IsValid(ent1) and IsValid(ent2) then
+            if ent1.antiPropKillOwner != nil and ent2.antiPropKillOwner != nil then
+                if ent1.pickedUp == true or ent2.pickedUp == true then
+                    if ent1.antiPropKillOwner != ent2.antiPropKillOwner then
+                        if ent1:GetPhysicsObject():IsMoveable() == true and ent2:GetPhysicsObject():IsMoveable() == true then 
+                            return false
+                        else
+                            return true
+                        end
+                    end
+
+                    if ent1.antiPropKillOwner == ent2.antiPropKillOwner then
+                        if ent1:GetPhysicsObject():IsMoveable() == true and ent2:GetPhysicsObject():IsMoveable() == true then 
+                            return false
+                        else
+                            return true
+                        end
+                    end
+                end
+            end
+        end
     end
 end)
 
 --< Disable collision on players and vehicles on prop pickup >--
 hook.Add("PhysgunPickup", "AntiPropKill", function(ply, ent)
     if table.HasValue(APKconfig.disablePickup or {}, ply:Nick()) then return false end
+    ent.pickedUp = true
 
     if not APKconfig.disablePropGhosting or 1 == 2 then
         if not table.HasValue(APKconfig.pickupWhitelist or {}, ent:GetClass()) then
@@ -92,6 +120,7 @@ hook.Add("PhysgunPickup", "AntiPropKill", function(ply, ent)
 end)
 
 hook.Add("PhysgunDrop", "AntiPropKill", function(ply, ent)
+    ent.pickedUp = false
     if not ent:IsPlayer() or not ent:IsNPC() then
         --< Resets the prop back to normal >--
         timer.Create("AntiPropKill"..ent:EntIndex(), APKconfig.timer or 5, 1, function()
